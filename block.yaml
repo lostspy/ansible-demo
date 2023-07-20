@@ -1,0 +1,25 @@
+---
+- name: Example playbook with block, rescue, and always
+  hosts: localhost
+  become: true
+  tasks:
+    - name: Task 1 - This task will run successfully
+      debug:
+        msg: "Task 1 ran successfully"
+
+    - block:
+        - name: Task 2 - This task will fail intentionally
+          command: ls -l
+      rescue:
+        - name: Task 2 Rescue - This task will run if Task 2 fails
+          debug:
+            msg: "Task 2 failed but rescued!"
+
+      always:
+        - name: Task 3 - This task always runs, regardless of success or failure
+          debug:
+            msg: "Task 3 always runs"
+
+    - name: Task 4 - This task will run successfully
+      debug:
+        msg: "Task 4 ran successfully"

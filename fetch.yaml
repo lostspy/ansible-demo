@@ -1,0 +1,23 @@
+---
+- name: Demo for file and fetch modules
+  hosts: us
+  become: true
+
+  tasks:
+    - name: Create a file on the remote server
+      file:
+        path: /tmp/sample-file.txt
+        state: touch
+        mode: '0644'
+
+    - name: Add content to the file
+      lineinfile:
+        path: /tmp/sample-file.txt
+        line: "Hello, this is a demo file created using Ansible."
+        create: yes
+
+    - name: Fetch the file to the local machine
+      fetch:
+        src: /tmp/sample-file.txt
+        dest: ./fetched_files/
+        flat: no

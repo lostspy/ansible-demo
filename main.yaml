@@ -1,0 +1,8 @@
+- hosts: all
+  vars:
+    my_var: "{{ inventory_hostname }}"
+  tasks:
+    - debug:
+        msg: "This is the main playbook"
+    - include_tasks: include.yaml
+    - import_tasks: import.yaml

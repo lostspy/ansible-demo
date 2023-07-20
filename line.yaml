@@ -1,0 +1,25 @@
+---
+- name: Demo for lineinfile and blockinfile modules
+  hosts: us
+  become: true
+
+  tasks:
+    - name: Add a line to the file using lineinfile
+      lineinfile:
+        path: /tmp/sample.txt
+        line: "This is a line added using lineinfile"
+        create: yes
+
+    - name: Add a block of text to the file using blockinfile
+      blockinfile:
+        path: /tmp/sample.txt
+        block: |
+          This is a block added using blockinfile.
+          It can contain multiple lines of text.
+          Line 1
+          Line 2
+        marker: "# ANSIBLE: BEGIN/END BLOCK"
+
+    - name: Display the contents of the file
+      command: cat /tmp/sample.txt
+

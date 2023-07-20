@@ -1,0 +1,10 @@
+Welcome to {{ ansible_hostname }}!
+
+This is {{ ansible_distribution }} {{ ansible_distribution_version }}.
+
+System information:
+- CPU: {{ ansible_processor }}
+- RAM: {{ ansible_memtotal_mb }} MB
+- IP Address: {{ ansible_default_ipv4.address }}
+
+Thank you for using Ansible for configuration management.

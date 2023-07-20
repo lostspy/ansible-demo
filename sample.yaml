@@ -1,6 +1,0 @@
----
-- hosts: all
-  tasks:
-    - name: gather facts
-      debug:
-        msg: "{{ ansible_facts }}"

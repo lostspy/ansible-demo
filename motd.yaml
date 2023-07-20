@@ -1,0 +1,10 @@
+---
+- name: Generate MOTD using Jinja2 templates
+  hosts: us
+  become: true
+
+  tasks:
+    - name: Create the MOTD file using the Jinja2 template
+      template:
+        src: motd_template.j2
+        dest: /etc/motd

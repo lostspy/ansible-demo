@@ -1,0 +1,3 @@
+# include.yml
+- debug:
+    msg: "This is the included task file, the variable is {{ my_var }}"
