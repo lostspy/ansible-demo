@@ -1,0 +1,11 @@
+---
+- name: Generate Host Details HTML Reports
+  hosts: all
+  gather_facts: true
+
+  tasks:
+    - name: Generate HTML report for each host
+      template:
+        src: host_details_report.j2
+        dest: /tmp/health_check_report.html
+      delegate_to: localhost
