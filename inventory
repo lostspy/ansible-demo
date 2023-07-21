@@ -24,9 +24,5 @@ us-2  ansible_host=10.74.212.134
 europe
 us
 
-[aws]
-RHEL9 ansible_host=18.60.59.248 ansible_user=ec2-user
-Ubuntu ansible_host=43.205.242.79 ansible_user=ubuntu
-
 [all:vars]
 ansible_user=quickcluster
