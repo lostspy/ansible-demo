@@ -17,28 +17,52 @@
         subnet: ""
 
     - name: Create a new Subnet
-      amazon.aws.ec2_vpc_subnet:
-        cidr: "{{ cidr }}"
-        region: "{{ region }}"
+      ec2_vpc_subnet:
+        state: present
+        cidr: 10.0.0.0/24
         vpc_id: "{{ vpc.vpc.id }}"
+        region: "{{ region }}"
       register: subnet
-  
-    - name: Create a Security Group  
-      amazon.aws.ec2_security_group:
-        name: "Ansible-Test-Security-Group"
-        description: "Ansible-Testing"
+
+    - name: Create Internet Gateway
+      ec2_vpc_igw:
+        vpc_id: "{{ vpc.vpc.id }}"
+        region: "{{ region }}"
+        state: present
+      register: igw
+
+    - name: Attach Internet Gateway to VPC
+      ec2_vpc_igw_info:
+        vpc_id: "{{ vpc.vpc.id }}"
+        region: "{{ region }}"
+      register: vpc_with_igw
+      when: igw.changed
+
+    - name: Create Security Group
+      ec2_group:
+        name: MySecurityGroup
+        description: Allow SSH, 8080, HTTP and HTTPs traffic
         vpc_id: "{{ vpc.vpc.id }}"
         region: "{{ region }}"
         rules:
           - proto: tcp
-            ports:
-            - 80
-            - 8080
-            - 22
+            from_port: 22
+            to_port: 22
             cidr_ip: 0.0.0.0/0
-            rule_desc: "allow all on port 80 and 8080"
+          - proto: tcp
+            from_port: 80
+            to_port: 80
+            cidr_ip: 0.0.0.0/0
+          - proto: tcp
+            from_port: 8080
+            to_port: 8080
+            cidr_ip: 0.0.0.0/0
+          - proto: tcp
+            from_port: 443
+            to_port: 443
+            cidr_ip: 0.0.0.0/0
       register: security_group
-   
+
     - name: Launch an EC2 Instance
       amazon.aws.ec2_instance:
         name: "Ansible-Demo-Instance"
