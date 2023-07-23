@@ -1,0 +1,63 @@
+- name: Install Jenkins and update admin password
+  hosts: aws_ec2  # Replace with the target host or group
+  become: yes
+  gather_facts: yes
+
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+
+    - name: Install Java OpenJDK
+      apt:
+        name: openjdk-8-jdk  # Ubuntu 18.04 and earlier use openjdk-8-jdk
+        state: present
+      when: ansible_distribution_version | version_compare('18.04', '<')
+
+    - name: Install Java OpenJDK
+      apt:
+        name: openjdk-11-jdk  # Ubuntu 20.04 and later use openjdk-11-jdk
+        state: present
+      when: ansible_distribution_version | version_compare('18.04', '>=')
+
+    - name: Add Jenkins APT repository key
+      apt_key:
+        url: https://pkg.jenkins.io/debian/jenkins.io.key
+        state: present
+
+    - name: Add Jenkins APT repository
+      apt_repository:
+        repo: deb http://pkg.jenkins.io/debian-stable binary/
+        state: present
+        filename: jenkins
+
+    - name: Install Jenkins
+      apt:
+        name: jenkins
+        state: present
+
+    - name: Start Jenkins service
+      service:
+        name: jenkins
+        state: started
+        enabled: yes
+
+    - name: Wait for Jenkins to start
+      uri:
+        url: http://localhost:8080
+        status_code: 200
+        timeout: 60
+      register: jenkins_started
+      until: jenkins_started.status == 200
+      retries: 30
+      delay: 5
+
+    - name: Get Jenkins initial admin password
+      shell: "cat /var/lib/jenkins/secrets/initialAdminPassword"
+      register: jenkins_admin_password
+      changed_when: false
+
+    - name: Print Jenkins admin password
+      debug:
+        msg: "Jenkins admin password: {{ jenkins_admin_password.stdout }}"
+      when: jenkins_admin_password.stdout is defined
