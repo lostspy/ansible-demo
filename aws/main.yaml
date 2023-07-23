@@ -1,0 +1,62 @@
+---
+- name: Provision EC2 instance
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  vars_files: var.yaml
+  tasks:      
+    - name: Create a new VPC 
+      amazon.aws.ec2_vpc_net:
+        name: "Ansible-Test"
+        cidr_block: "{{ cidr_block }}"
+        region: "{{ region }}"
+      register: vpc
+
+    - name: Create a new Subnet
+      amazon.aws.ec2_vpc_subnet:
+        cidr: "{{ cidr }}"
+        region: "{{ region }}"
+        vpc_id: "{{ vpc.vpc.id }}"
+      register: subnet
+  
+    - name: Create a Security Group  
+      amazon.aws.ec2_security_group:
+        name: "Ansible-Test-Security-Group"
+        description: "Ansible-Testing"
+        vpc_id: "{{ vpc.vpc.id }}"
+        region: "{{ region }}"
+        rules:
+          - proto: tcp
+            ports:
+            - 80
+            - 8080
+            - 22
+            cidr_ip: 0.0.0.0/0
+            rule_desc: "allow all on port 80 and 8080"
+      register: security_group
+   
+    - name: Launch an EC2 Instance
+      amazon.aws.ec2_instance:
+        name: "Jenkins-Ansible"
+        key_name: "{{ key_name }}"
+        vpc_subnet_id: "{{ subnet.subnet.id }}"
+        instance_type: "{{ instance_type }}"
+        security_group: "{{ security_group.group_id  }}"
+        count: 1
+        wait: yes
+        aws_region: "ap-south-1"
+        network:
+          assign_public_ip: true
+        image_id: "{{ ami }}"
+      register: ec2_instance_info
+
+    - name: Wait for instance to become available
+      wait_for:
+        host: "{{ ec2_instance_info.instances[0].public_ip }}"
+        port: 22
+        timeout: 300  # Maximum time to wait in seconds (adjust as needed)
+      register: instance_ready
+
+    - name: Debug instance_ready result
+      debug:
+        var: instance_ready

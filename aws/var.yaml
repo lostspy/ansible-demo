@@ -1,0 +1,7 @@
+---
+region: "ap-southeast-1"
+instance_type: "t3.medium"
+ami: "ami-0df7a207adb9748c7"  # Replace with the desired AMI ID for your region
+key_name: "redhat-singapore"  # Replace with your EC2 key pair name
+cidr_block: "10.10.0.0/16"
+cidr: "10.10.0.0/24"
