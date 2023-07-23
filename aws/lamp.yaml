@@ -1,0 +1,61 @@
+- name: Install LAMP on AWS instance
+  hosts: aws_ec2  # Replace with the target host or group
+  become: yes
+  gather_facts: yes
+
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+
+    - name: Install Apache web server
+      apt:
+        name: apache2
+        state: present
+
+    - name: Start Apache service
+      service:
+        name: apache2
+        state: started
+        enabled: yes
+
+    - name: Install PHP and required modules
+      apt:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - libapache2-mod-php
+        - php
+        - php-cli
+        - php-mysql
+        - php-curl
+        - php-gd
+        - php-mbstring
+        - php-xml
+
+    - name: Install MySQL server
+      apt:
+        name: mysql-server
+        state: present
+
+    - name: Secure MySQL installation (optional)
+      expect:
+        command: mysql_secure_installation
+        responses:
+          'Enter current password for root (enter for none):': "\n"
+          'Set root password? [Y/n]': "Y\n"
+          'New password:': "redhat\n"
+          'Re-enter new password:': "redhat\n"
+          'Remove anonymous users? [Y/n]': "Y\n"
+          'Disallow root login remotely? [Y/n]': "Y\n"
+          'Remove test database and access to it? [Y/n]': "Y\n"
+          'Reload privilege tables now? [Y/n]': "Y\n"
+        echo: yes
+      when: ansible_distribution_version | version_compare('18.04', '>=')
+      # The expect module is optional and required only for Ubuntu 18.04 and later
+
+    - name: Start MySQL service
+      service:
+        name: mysql
+        state: started
+        enabled: yes
