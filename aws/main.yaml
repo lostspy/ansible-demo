@@ -17,7 +17,7 @@
         subnet: ""
 
     - name: Create a new Subnet
-      ec2_vpc_subnet:
+      amazon.aws.ec2_vpc_subnet:
         state: present
         cidr: 10.0.0.0/24
         vpc_id: "{{ vpc.vpc.id }}"
@@ -25,21 +25,21 @@
       register: subnet
 
     - name: Create Internet Gateway
-      ec2_vpc_igw:
+      amazon.aws.ec2_vpc_igw:
         vpc_id: "{{ vpc.vpc.id }}"
         region: "{{ region }}"
         state: present
       register: igw
 
     - name: Attach Internet Gateway to VPC
-      ec2_vpc_igw_info:
+      amazon.aws.ec2_vpc_igw_info:
         vpc_id: "{{ vpc.vpc.id }}"
         region: "{{ region }}"
       register: vpc_with_igw
       when: igw.changed
 
     - name: Create Security Group
-      ec2_group:
+      amazon.aws.ec2_group:
         name: MySecurityGroup
         description: Allow SSH, 8080, HTTP and HTTPs traffic
         vpc_id: "{{ vpc.vpc.id }}"
