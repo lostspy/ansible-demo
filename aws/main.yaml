@@ -12,12 +12,16 @@
         region: "{{ region }}"
       register: vpc
 
+    - name: nullify the variables
+      set_fact:
+        subnet: ""
+
     - name: Create a new Subnet
       amazon.aws.ec2_vpc_subnet:
         cidr: "{{ cidr }}"
         region: "{{ region }}"
         vpc_id: "{{ vpc.vpc.id }}"
-      register: subnet1
+      register: subnet
   
     - name: Create a Security Group  
       amazon.aws.ec2_security_group:
@@ -39,12 +43,12 @@
       amazon.aws.ec2_instance:
         name: "Ansible-Demo-Instance"
         key_name: "{{ key_name }}"
-        vpc_subnet_id: "{{ subnet1.subnet.id }}"
+        vpc_subnet_id: "{{ subnet.subnet.id }}"
         instance_type: "{{ instance_type }}"
         security_group: "{{ security_group.group_id  }}"
         count: 1
         wait: yes
-        aws_region: "ap-south-1"
+        aws_region: "{{ region }}"
         network:
           assign_public_ip: true
         image_id: "{{ ami }}"
