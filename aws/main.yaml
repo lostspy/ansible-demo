@@ -56,4 +56,4 @@
     
     - name: print the instace state
       debug:
-        msg: "{{ ec2_instance_info.stdout_lines }}"
+        msg: "{{ ec2_instance_info }}"
