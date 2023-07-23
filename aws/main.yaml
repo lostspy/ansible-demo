@@ -53,17 +53,7 @@
           assign_public_ip: true
         image_id: "{{ ami }}"
       register: ec2_instance_info
-
-    - name: Extract Public IP
-      set_fact:
-        public_ip_address: "{{ ec2_instance_info.instances[0].public_ip }}"
-
-    - name: Wait for instance to become available
-      wait_for:
-        host: "{{ public_ip_address }}"
-        port: 22
-        timeout: 300  # Maximum time to wait in seconds (adjust as needed)
-      register: instance_ready
-      until: instance_ready is succeeded
-      retries: 5
-      delay: 10
+    
+    - name: print the instace state
+      debug:
+        msg: "{{ ec2_instance_info.stdout_lines }}"
